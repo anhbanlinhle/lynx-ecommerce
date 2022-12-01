@@ -1,0 +1,55 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lynx</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+
+<body>
+
+  <div class="topnav">
+    <a href="/" class="active">Home</a>
+    <!-- <a href="/users">Users</a> -->
+    <!-- <a href="/upload">Upload</a> -->
+    <a href="/login">Login</a>
+    <a href="/sign-up">Sign Up</a>
+
+  </div>
+
+  <table class="w3-table-all w3-hoverable">
+    <thead>
+      <tr class="w3-light-grey">
+        <th>Product</th>
+        <th>Price</th>
+        <th>Type</th>
+        <th>Store</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(let i=0; i < dataUser.length; i++) { %>
+        <tr>
+          <td>
+            <%= dataUser[i].productName %>
+          </td>
+          <td>
+            $<%= dataUser[i].price %>
+          </td>
+          <td>
+            <%= dataUser[i].type %>
+          </td>
+          <td>
+            <%= dataUser[i].name %>
+          </td>
+          
+        </tr>
+        <% } %>
+    </tbody>
+
+  </table>
+</body>
+
+</html>

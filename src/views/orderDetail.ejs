@@ -1,0 +1,95 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lynx</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+
+<body>
+
+  <div class="topnav">
+    <a href="/">Hello <%{%><%= username%><%}%>!</a>
+    <a href="/users">Info</a>
+    <a href="/cart">Cart</a>
+    <a href="/orders" class="active">Orders</a>
+    <a href="/sell">Sells</a>
+    <a href="/logout">Logout</a>
+  </div>
+
+  <table class="w3-table-all w3-hoverable">
+    <thead>
+      <tr class="w3-light-grey">
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Store</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(let i=0; i < orderDetail.length; i++) { %>
+        <tr>
+          <td>
+            <%= orderDetail[i].productName %>
+          </td>
+          <td>
+            $<%= orderDetail[i].price %>
+          </td>
+          <td>
+            <%= orderDetail[i].quantity %>
+          </td>
+          <td>
+            <%= orderDetail[i].name %>
+          </td>
+        </tr>
+        <% } %>
+    </tbody>
+
+  </table>
+  <table class="w3-table-all w3-hoverable">
+    <thead>
+      <tr class="w3-light-grey">
+        <th>Total Quantity</th>
+        <th>Shipping Fee (10%)</th>
+        <th>Total Price</th>
+        <th>Confirm</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% { %>
+        <tr>
+          <td>
+            <%= sum[0].totalQuantity %>
+          </td>
+          <td>
+            $<%= sum[0].shippingFee %>
+          </td>
+          <td>
+            <p id="totalPrice"></p>
+            <script>
+              let num = parseInt("<%= sum[0].totalPrice %>");
+
+              let text = num.toLocaleString("en-US", { style: "currency", currency: "USD" });
+              if (text == '$NaN') { text = '$0.00' }
+
+              document.getElementById("totalPrice").innerHTML = text;
+            </script>
+          </td>
+
+          <td>
+            <form action="/confirm-order" method="post">
+              <input type="hidden" name="orderId" value="<%= sum[0].orderId%>">
+              <button type="submit">Pay!</button>
+            </form>
+          </td>
+        </tr>
+        <% } %>
+    </tbody>
+
+  </table>
+</body>
+
+</html>

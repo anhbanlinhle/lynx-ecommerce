@@ -1,0 +1,75 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lynx</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+
+<body>
+
+  <div class="topnav">
+    <a href="/">Hello <%{%>
+        <%= username%><%}%>!</a>
+        <a href="/users">Info</a>
+    <a href="/cart">Cart</a>
+    <a href="/orders">Orders</a>
+    <a href="/sell"><%{%><%= storeName%><%}%></a>
+    <a href="/logout">Logout</a>
+  </div>
+  <div class="topnav">
+
+    
+    <a href="/sell/<%{%><%= storeId%><%}%>">Orders Management</a>
+    <a href="/current-products/<%{%><%= storeId%><%}%>" class="active">Distribution</a>
+    <a href="/new-distributions/<%{%><%= storeId%><%}%>">Import</a>
+  </div>
+  
+
+  <table class="w3-table-all w3-hoverable">
+    <thead>
+      <tr class="w3-light-grey">
+        <th>Id</th>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(let i=0; i < productData.length; i++) { %>
+        <tr>
+          <td>
+            <%= productData[i].productId %>
+          </td>
+          <td>
+            <%= productData[i].productName %>
+          </td>
+          <td>
+            $<%= productData[i].price %>
+          </td>
+          <td>
+            <%= productData[i].quantityInStock %>
+          </td>
+          <td>
+            <form action="/increase-product/" method="post">
+              <input type="hidden" name="productId" value="<%= productData[i].productId %>">
+              <input type="hidden" name="storeId" value="<%= productData[i].storeId %>">
+              <input type="text" name="quantity" placeholder="quantity">
+              <button type="submit">Add</button>
+            </form>
+          </td>
+        </tr>
+
+    </tbody>
+
+    </tbody>
+    <% } %>
+  </table>
+
+</body>
+
+</html>

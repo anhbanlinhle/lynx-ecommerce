@@ -1,0 +1,116 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+
+<body>
+
+  <div class="topnav">
+    <a href="/">Hello <%{%><%= username%><%}%>!</a>
+    <!-- <a href="/users">Users</a> -->
+    <!-- <a href="/upload">Upload</a> -->
+    <!-- <a href="/users/<%{%><%= username%><%}%>">Profile</a> -->
+    <a href="/users">Info</a>
+    <a href="/cart" class="active">Cart</a>
+    <a href="/orders">Orders</a>
+    <a href="/sell">Sells</a>
+    <a href="/logout">Logout</a>
+  </div>
+
+  <table class="w3-table-all w3-hoverable">
+    <thead>
+      <tr class="w3-light-grey">
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Store</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(let i=0; i < cartData.length; i++) { %>
+        <tr>
+          <td>
+            <%= cartData[i].productName %>
+          </td>
+          <td>
+            $<%= cartData[i].price %>
+          </td>
+          
+          <td>
+            <form action="/update-quantity" method="post">
+              <%= cartData[i].quantity %> →
+              <input type="text" placeholder="1 - <%= cartData[i].quantityInStock %>"
+                value="" name="newQuantity"/>
+              <input type="text" hidden value="<%= cartData[i].quantityInStock %>" name="instock">
+              <input type="text" hidden value="<%= cartData[i].cartId %>" name="cartid">
+              <input type="text" hidden value="<%= cartData[i].storeId %>" name="storeid">
+              <input type="text" hidden value="<%= cartData[i].productId %>" name="productid">
+              <button type="submit">Update</button>
+            </form>
+          </td>
+          <td>
+            <%= cartData[i].name %>
+          </td>
+          <td>
+            
+              
+            
+            <form action="/delete-cart-item" method="post">
+              <%= cartData[i].quantity %> → 0
+              <input type="text" hidden value="<%= cartData[i].cartId %>" name="cartid">
+              <input type="text" hidden value="<%= cartData[i].storeId %>" name="storeid">
+              <input type="text" hidden value="<%= cartData[i].productId %>" name="productid">
+              <button type="submit">Remove</button>
+            </form>
+          </td>
+        </tr>
+        <% } %>
+    </tbody>
+  
+  </table>
+  <table class="w3-table-all w3-hoverable">
+    <thead>
+      <tr class="w3-light-grey">
+        <th>Total Quantity</th>
+        <th>Total Price</th>
+        <th>Purchase</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% { %>
+        <tr>
+          <td>
+            <%= sum[0].totalQuantity %>
+          </td>
+          <td>
+            <p id="totalPrice"></p>
+            <script>
+              let num = parseInt("<%= sum[0].totalPrice %>");
+              
+              let text = num.toLocaleString("en-US", { style: "currency", currency: "USD" });
+              if (text == '$NaN'){text = '$0.00'}
+
+              document.getElementById("totalPrice").innerHTML = text;
+            </script>
+          </td>
+  
+          <td>
+            <form action="/create-order" method="post">
+                <button type="submit">Purchase All!</button>
+            </form>
+          </td>
+        </tr>
+        <% } %>
+    </tbody>
+  
+  </table>
+</body>
+
+</html>

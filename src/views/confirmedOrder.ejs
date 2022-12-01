@@ -1,0 +1,70 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmed</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+
+<body>
+
+  <div class="topnav">
+    <a href="/">Hello <%{%>
+        <%= username%><%}%>!</a>
+        <a href="/users">Info</a>
+    <a href="/cart">Cart</a>
+    <a href="/orders">Orders</a>
+    <a href="/sell">Sells</a>
+    <a href="/logout">Logout</a>
+  </div>
+  <div class="topnav">
+    <a href="/pending">Pending</a>
+    <a href="/confirmed" class="active">Confirmed</a>
+    <a href="/shipping">Shipping</a>
+    <a href="/cancelled">Cancelled</a>
+    <a href="/received">Received</a>
+  </div>
+
+  <table class="w3-table-all w3-hoverable">
+    <thead>
+      <tr class="w3-light-grey">
+        <th>Order Id</th>
+        <th>Total Price</th>
+        <th>Status</th>
+        <th>Ship Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(let i=0; i < confirmedData.length; i++) { %>
+        <tr>
+          <td>
+            #<%= confirmedData[i].orderId %>
+          </td>
+          <td>
+            $<%= confirmedData[i].totalPrice %>
+          </td>
+          <td>
+            <%= confirmedData[i].status %>
+          </td>
+          <td>
+            <%= confirmedData[i].shipDate %>
+          </td>
+          <td>
+            <form action="/orders/<%= confirmedData[i].orderId%>/">
+              <button>View</button>
+            </form>
+          </td>
+        </tr>
+
+    </tbody>
+
+    </tbody>
+    <% } %>
+  </table>
+</body>
+
+</html>

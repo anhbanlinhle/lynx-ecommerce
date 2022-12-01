@@ -1,0 +1,57 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lynx</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+
+<body>
+
+  <div class="topnav">
+    <a href="/">Hello <%{%>
+        <%= username%><%}%>!</a>
+        <a href="/users">Info</a>
+    <a href="/cart">Cart</a>
+    <a href="/orders">Orders</a>
+    <a href="/sell" class="active">Sells</a>
+    <a href="/logout">Logout</a>
+  </div>
+
+<div class="create-store-container">
+  <form action="/create-store" method="post">
+    <fieldset>
+        <% if (err.length > 0) { %>
+            <script> alert('<%= err%>')</script>
+            <% } %>
+          <legend>Welcome to the fun part</legend>
+          Start selling your tech by registering as a seller!
+          <div>
+            <label></label>
+            <input type="text" name="storeName" placeholder="Store Name" required />
+          </div>
+
+          <div>
+            <label></label>
+            <input type="text" name="address" placeholder="Address" required />
+          </div>
+          <div>
+            <label></label>
+            <input type="password" name="password" placeholder="Confirm Password" required />
+          </div>
+          <div>
+            <button type="submit" class="sign-up">Sell!</button>
+          </div>
+
+
+    </fieldset>
+  </form>
+</div>
+
+
+</body>
+
+</html>

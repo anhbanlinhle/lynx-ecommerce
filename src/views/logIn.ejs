@@ -1,0 +1,49 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+
+<body>
+  <div class="topnav">
+    <a href="/">Home</a>
+    <!-- <a href="/users">Users</a>
+    <a href="/upload">Upload</a> -->
+    <a href="/login" class="active">Login</a>
+    <a href="/sign-up">Sign Up</a>
+  </div>
+  <div class="w3-container">
+  </div>
+
+  <div class="create-user-container">
+    <form action="/auth" method="post">
+      <fieldset>
+        <legend>Log In</legend>
+        <div>
+          <label for="username"><i class="fas fa-user"></i></label>
+          <input type="text" name="username" placeholder="Username" id="username" required>
+        </div>
+        <div>
+          <label for="password"><i class="fas fa-lock"></i></label>
+          <input type="password" name="password" placeholder="Password" id="password" required>
+        </div>
+        <% if (loginErr.length> 0) { %>
+          <script> alert("<%= loginErr %>") </script>
+          <% } %>
+        <div>
+          <input type="submit" value="Login">
+        </div>
+        
+      </fieldset>
+    </form>
+  </div>
+
+
+</body>
+
+</html>
