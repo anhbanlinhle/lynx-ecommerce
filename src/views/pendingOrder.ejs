@@ -34,7 +34,7 @@
         <th>Order Id</th>
         <th>Total Price</th>
         <th>Status</th>
-        <th>Ship Date</th>
+        <!-- <th>Ship Date</th> -->
         <th>Actions</th>
       </tr>
     </thead>
@@ -50,9 +50,9 @@
           <td>
             <%= pendingData[i].status %>
           </td>
-          <td>
+          <!-- <td>
             <%= pendingData[i].shipDate %>
-          </td>
+          </td> -->
           <td>
             <form action="/orders/<%= pendingData[i].orderId%>/">
               <button>View</button>

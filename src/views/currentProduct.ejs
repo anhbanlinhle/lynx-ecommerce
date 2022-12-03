@@ -26,22 +26,28 @@
     <a href="/sell/<%{%><%= storeId%><%}%>">Orders Management</a>
     <a href="/current-products/<%{%><%= storeId%><%}%>" class="active">Distribution</a>
     <a href="/new-distributions/<%{%><%= storeId%><%}%>">Import</a>
+    <a href="/manage-voucher/<%{%><%= storeId%><%}%>">Vouchers</a>
   </div>
   
 
   <table class="w3-table-all w3-hoverable">
     <thead>
       <tr class="w3-light-grey">
+        <th>Status</th>
         <th>Id</th>
         <th>Product</th>
         <th>Price</th>
         <th>Quantity</th>
-        <th>Actions</th>
+        <th>Import</th>
+        <th>Add Tag</th>
       </tr>
     </thead>
     <tbody>
       <% for(let i=0; i < productData.length; i++) { %>
         <tr>
+          <td>
+            <%= productData[i].status %>
+          </td>
           <td>
             <%= productData[i].productId %>
           </td>
@@ -59,6 +65,14 @@
               <input type="hidden" name="productId" value="<%= productData[i].productId %>">
               <input type="hidden" name="storeId" value="<%= productData[i].storeId %>">
               <input type="text" name="quantity" placeholder="quantity">
+              <button type="submit">Add</button>
+            </form>
+          </td>
+          <td>
+            <form action="/add-tag/" method="post">
+              <input type="hidden" name="productId" value="<%= productData[i].productId %>">
+              <input type="hidden" name="storeId" value="<%= productData[i].storeId %>">
+              <input type="text" name="tag" placeholder="tag">
               <button type="submit">Add</button>
             </form>
           </td>

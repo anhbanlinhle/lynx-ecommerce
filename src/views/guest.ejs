@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lynx</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
 
@@ -17,6 +18,12 @@
     <!-- <a href="/upload">Upload</a> -->
     <a href="/login">Login</a>
     <a href="/sign-up">Sign Up</a>
+    <div class="search-container">
+      <form action="/search/" method="post">
+        <input type="text" placeholder="Search.." name="search">
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
 
   </div>
 
@@ -25,7 +32,7 @@
       <tr class="w3-light-grey">
         <th>Product</th>
         <th>Price</th>
-        <th>Type</th>
+        <!-- <th>Type</th> -->
         <th>Store</th>
       </tr>
     </thead>
@@ -38,9 +45,9 @@
           <td>
             $<%= dataUser[i].price %>
           </td>
-          <td>
+          <!-- <td>
             <%= dataUser[i].type %>
-          </td>
+          </td> -->
           <td>
             <%= dataUser[i].name %>
           </td>

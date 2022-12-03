@@ -58,6 +58,15 @@ const initWebRoute = (app) => {
   router.get('/new-distributions/:storeId', homeController.getNewDistribution);
   router.post('/init-distri/:storeId', homeController.importProduct);
 
+  router.post('/search/', homeController.searchProduct);
+  router.post('/add-store', homeController.addStore);
+
+  router.post('/add-tag', homeController.addTag);
+  router.get('/sort/:tag', homeController.sortProduct);
+
+  router.get('/manage-voucher/:storeId', homeController.getManageVoucher);
+  router.post('/voucher-vis', homeController.voucherVis);
+
   return app.use('/', router);
 }
 

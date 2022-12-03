@@ -49,16 +49,16 @@
               <%= dataUser[i].email %>
             </td>
             <td>
-              <button type="submit">
+              <!-- <button type="submit">
                 <a href="/users/<%= dataUser[i].username %>" style="text-decoration: none;">Detail</a>
-              </button>
+              </button> -->
               <form action="/edit-user/<%= dataUser[i].username %>" method="get">
                 <button type="submit">Edit</button>
               </form>
-              <form action="/delete-user" method="post">
+              <!-- <form action="/delete-user" method="post">
                 <button type="submit">Delete</button>
                 <input type="text" hidden value="<%= dataUser[i].username %>" name="username"/>
-              </form>
+              </form> -->
             </td>
           </tr>
           <% } %>

@@ -13,11 +13,13 @@
   <div class="topnav">
     <a href="/">Hello <%{%>
         <%= username%><%}%>!</a>
+        <a href="/users">Info</a>
     <a href="/cart">Cart</a>
     <a href="/orders">Orders</a>
     <a href="/sell" >My Stores</a>
     <a href="/add-product" class="active">Add Product</a>
     <a href="/logout">Logout</a>
+    
   </div>
   <div class="w3-container">
   </div>
@@ -38,11 +40,11 @@
               <label></label>
               <input type="text" name="description" placeholder="description" required />
             </div>
-
-            <div>
+            
+            <!-- <div>
               <label></label>
               <input type="text" name="type" placeholder="type" required />
-            </div>
+            </div> -->
             <div>
               <label></label>
               <input type="password" name="password" placeholder="password" required />

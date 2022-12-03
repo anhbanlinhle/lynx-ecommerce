@@ -34,7 +34,7 @@
         <th>Order Id</th>
         <th>Total Price</th>
         <th>Status</th>
-        <th>Ship Date</th>
+        <!-- <th>Ship Date</th> -->
         <th>Actions</th>
       </tr>
     </thead>
@@ -50,9 +50,9 @@
           <td>
             <%= confirmedData[i].status %>
           </td>
-          <td>
+          <!-- <td>
             <%= confirmedData[i].shipDate %>
-          </td>
+          </td> -->
           <td>
             <form action="/orders/<%= confirmedData[i].orderId%>/">
               <button>View</button>

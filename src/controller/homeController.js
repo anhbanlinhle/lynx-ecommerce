@@ -3,13 +3,15 @@ import pool from '../configs/connectDB';
 
 let getHomepage = async (req, res) => {
   const [rows, fields] = await pool.execute(`select * from products inner join distributions on products.productid = distributions.productid
-  inner join stores on distributions.storeid = stores.storeid`);
-  // console.log(rows);
+  inner join stores on distributions.storeid = stores.storeid where distributions.status = 'Approved'`);
+
+  const [allTag, f] = await pool.execute(`select distinct type from producttype`);
+  
   if (req.session.username === undefined) {
-    return res.render('loggedIn.ejs', { dataUser: rows });
+    return res.render('guest.ejs', { dataUser: rows, allTag: allTag });
   }
   else {
-    return res.render('index.ejs', { dataUser: rows, username: req.session.username });
+    return res.render('index.ejs', { dataUser: rows, username: req.session.username, allTag: allTag });
   }
 }
 
@@ -48,10 +50,12 @@ let createNewUser = async (req, res) => {
   if (check.length > 0) {
     return res.render('signUp.ejs', { err: 'Email/Username existed' });
   }
+  let [userId] = await pool.execute(`select max(id) as id from users`, [username]);
 
   await pool.execute('insert into accounts(username, password, email) values(?, ?, ?)',
    [username, password, email]);
   await pool.execute(`insert into users(dob, sFlag, username) values(?, '0', ?)`, [dob, username]);
+  await pool.execute(`insert carts (userId, quantity) VALUES (?, '0')`, [userId[0].id+1])
   return res.redirect('/login');
 }
 
@@ -361,6 +365,11 @@ let getSell = async (req, res) => {
   }
 }
 
+let addStore = async (req, res) => {
+  let username = req.session.username;  
+  return res.render('sellRegist.ejs', { username: username, err: '' });
+}
+
 let createStore = async (req, res) => {
   let username = req.session.username;
   let { storeName, address, password } = req.body;
@@ -409,7 +418,7 @@ let addProduct = async (req, res) => {
 
 let createProduct = async (req, res) => {
   let username = req.session.username;
-  let { name, description, type ,password } = req.body;
+  let { name, description, password } = req.body;
 
   let [check] = await pool.execute(`select password from accounts where username = ?`, [username]);
 
@@ -418,8 +427,8 @@ let createProduct = async (req, res) => {
   }
   else {
     await pool.execute(`insert into products(productName, description) values(?, ?)`, [name, description]);
-    let [pr0] = await pool.execute(`select max(productId) as productId from products`);
-    await pool.execute(`insert into producttype(productId, type) values(?, ?)`, [pr0[0].productId, type]);
+    // let [pr0] = await pool.execute(`select max(productId) as productId from products`);
+    // await pool.execute(`insert into producttype(productId, type) values(?, ?)`, [pr0[0].productId, type]);
   }
   return res.render('addProduct.ejs', { username: username, err: 'Create successfully' });
 }
@@ -427,7 +436,7 @@ let createProduct = async (req, res) => {
 let getCurrentProduct = async (req, res) => {
   let username = req.session.username;
   let storeId = req.params.storeId;
-  let [rows] = await pool.execute(`select p.*, d.price, d.quantityInStock, d.storeId from products p NATURAL join distributions d where storeId = ?;`,[storeId]);
+  let [rows] = await pool.execute(`select p.*, d.price, d.quantityInStock, d.storeId, d.status from products p NATURAL join distributions d where storeId = ?;`,[storeId]);
   // console.log(rows);
   let [storeName] = await pool.execute(`select name from stores where storeId = ?`, [storeId]);
 
@@ -445,7 +454,7 @@ let increaseProduct = async (req, res) => {
 
 let getNewDistribution = async (req, res) => {
   let storeId = req.params.storeId;
-  let [allProduct, f] = await pool.execute(`select * from products natural join producttype where productId not in (select productId from distributions where storeId = ?)`,[storeId])  
+  let [allProduct, f] = await pool.execute(`select * from products where productId not in (select productId from distributions where storeId = ?)`,[storeId])  
 
   let [storeName] = await pool.execute(`select name from stores where storeId = ?`, [storeId]);
   res.render('newDistribution.ejs', { disData: allProduct, storeId: storeId, storeName: storeName[0].name, username: req.session.username });
@@ -455,6 +464,70 @@ let importProduct = async (req, res) => {
   let { productId, storeId, price, quantity } = req.body;
   await pool.execute(`insert into distributions(productId, storeId, price, quantityInStock) values(?, ?, ?, ?)`, [productId, storeId, price, quantity]);
   res.redirect('/current-products' + '/' + storeId);
+}
+
+let searchProduct = async (req, res) => {
+  let keyword = req.body.search
+  let all = keyword.split(' ');
+  let allKey = [...new Set(all)]
+  let result = []
+
+  for (let i=0; i<allKey.length; i++) {
+    const [rows, fields] = await pool.execute(`select * from products inner join distributions on products.productid = distributions.productid
+  inner join stores on distributions.storeid = stores.storeid where products.productname like ? or stores.name like ?`, ['%' + allKey[i] + '%', '%' + allKey[i] + '%']);
+    result = result.concat(rows);
+  }
+  let row = [...new Set(result)];
+  
+  if (req.session.username === undefined) {
+    return res.render('guest.ejs', { dataUser: row });
+  }
+  else {
+    return res.render('index.ejs', { dataUser: row, username: req.session.username });
+  }
+}
+
+let addTag = async (req, res) => {
+  let { tag, productId, storeId } = req.body;
+  await pool.execute(`insert into producttype(productId, storeId, type) values(?, ?, ?)`, [productId, storeId, tag]);
+  res.redirect('/current-products' + '/' + storeId);
+}
+
+let sortProduct = async (req, res) => {
+  let tag = req.params.tag;
+
+  const [rows, fields] = await pool.execute(`select * from products natural join distributions natural join stores natural join producttype where distributions.status = 'Approved' and type = ?`, [tag]);
+
+  const [allTag, f] = await pool.execute(`select distinct type from producttype`);
+
+  if (req.session.username === undefined) {
+    return res.render('guest.ejs', { dataUser: rows, allTag: allTag });
+  }
+  else {
+    return res.render('index.ejs', { dataUser: rows, username: req.session.username, allTag: allTag });
+  }
+  
+}
+
+let getManageVoucher = async (req, res) => {
+  let storeId = req.params.storeId;
+  let [storeName] = await pool.execute(`select name from stores where storeId = ?`, [storeId]);
+  let [voucher] = await pool.execute(`select * from vouchers where storeId = ?`, [storeId]);
+  return res.render('manageVoucher.ejs', { voucherData: voucher, storeId: storeId, storeName: storeName[0].name, username: req.session.username });
+}
+
+let voucherVis = async (req, res) => {
+  let { storeId, voucherId, vis, status } = req.body;
+  
+  if (status == "Available") {
+    if (vis == "Private") {
+      await pool.execute(`update vouchers set visibility = 'Public' where voucherId = ?`, [voucherId]);
+    }
+    else {
+      await pool.execute(`update vouchers set visibility = 'Private' where voucherId = ?`, [voucherId]);
+    }
+  }
+  res.redirect('/manage-voucher' + '/' + storeId);
 }
 
 module.exports = {
@@ -467,5 +540,7 @@ module.exports = {
   getSell, getShippingOrders, getReceivedOrders,
   createStore, getStoreDetail, shipProduct, addProduct,
   createProduct, getCurrentProduct, increaseProduct,
-  getNewDistribution, importProduct
+  getNewDistribution, importProduct, searchProduct,
+  addStore, addTag, sortProduct, getManageVoucher,
+  voucherVis
 }

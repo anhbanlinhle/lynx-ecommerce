@@ -26,6 +26,7 @@
     <a href="/sell/<%{%><%= storeId%><%}%>">Orders Management</a>
     <a href="/current-products/<%{%><%= storeId%><%}%>">Distribution</a>
     <a href="/new-distributions/<%{%><%= storeId%><%}%>" class="active">Import</a>
+    <a href="/manage-voucher/<%{%><%= storeId%><%}%>">Vouchers</a>
   </div>
 
 
@@ -34,8 +35,8 @@
       <tr class="w3-light-grey">
         <th>Id</th>
         <th>Product</th>
-        <th>Type</th>
-        <th>Actions</th>
+        <!-- <th>Type</th> -->
+        <th>Request</th>
       </tr>
     </thead>
     <tbody>
@@ -47,9 +48,9 @@
           <td>
             <%= disData[i].productName %>
           </td>
-          <td>
+          <!-- <td>
             <%= disData[i].type %>
-          </td>
+          </td> -->
           <td>
             <form action="/init-distri/<%= storeId %>" method="post">
               <input type="hidden" name="productId" value="<%= disData[i].productId %>">

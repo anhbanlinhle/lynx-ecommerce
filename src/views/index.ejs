@@ -6,6 +6,7 @@
   <title>Lynx</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
   
@@ -19,14 +20,27 @@
     <a href="/orders">Orders</a>
     <a href="/sell">Sells</a>
     <a href="/logout">Logout</a>
+    <div class="search-container">
+      <form action="/search/" method="post">
+        <input type="text" placeholder="Search.." name="search">
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
   </div>
 
+  <div class="topnav">
+    <% for(let i=0; i < allTag.length; i++) { %>
+      <a href="/sort/<%= allTag[i].type%>"><%= allTag[i].type%></a>
+    <% } %>    
+  </div>
+
+  <div class="w3-container">
   <table class="w3-table-all w3-hoverable">
     <thead>
       <tr class="w3-light-grey">
         <th>Product</th>
         <th>Price</th>
-        <th>Type</th>
+        <!-- <th>Type</th> -->
         <th>Store</th>
         <th>Actions</th>
       </tr>
@@ -40,9 +54,9 @@
           <td>
             $<%= dataUser[i].price %>
           </td>
-          <td>
+          <!-- <td>
             <%= dataUser[i].type %>
-          </td>
+          </td> -->
           <td>
             <%= dataUser[i].name %>
           </td>
@@ -53,12 +67,13 @@
               <input type="text" hidden value="<%= dataUser[i].productId %>" name="productid">
             </form>
               
-            <button>View</button>
+            <!-- <button>View</button> -->
           </td>
         </tr>
         <% } %>
     </tbody>
   
   </table>
+  </div>
 </body>
 </html>

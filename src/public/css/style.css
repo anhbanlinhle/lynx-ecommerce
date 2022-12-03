@@ -8,6 +8,7 @@ body {
 .topnav {
   overflow: hidden;
   background-color: #333;
+  /* background-color: black; */
 }
 
 .topnav a {
@@ -16,7 +17,7 @@ body {
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
-  font-size: 17px;
+  font-size: 22px;
 }
 
 .topnav a:hover {
@@ -102,3 +103,35 @@ p {
 .create-store-container div {
   margin-top: 5px;
 }
+
+
+.topnav .search-container {
+  float: right;
+}
+
+.topnav input[type=text] {
+  padding: 3px 4px 4px 2px;
+  margin-top: 13px;
+  margin-bottom: 0px;
+  font-size: 17px;
+  border: none;
+}
+
+.topnav .search-container button {
+  color: white;
+  float: right;
+  padding: 6px 8px 6px 8px;
+  margin-top: 13px;
+  margin-right: 16px;
+  margin-bottom: 0px;
+  background: #04AA6D;
+  font-size: 17px;
+  /* border: none; */
+  cursor: pointer;
+}
+
+.topnav .search-container button:hover {
+  background: #ccc;
+}
+
+

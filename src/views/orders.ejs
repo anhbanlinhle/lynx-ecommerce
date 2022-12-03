@@ -34,7 +34,7 @@
         <th>Order Id</th>
         <th>Total Price</th>
         <th>Status</th>
-        <th>Ship Date</th>
+        <!-- <th>Ship Date</th> -->
         <th>Actions</th>
       </tr>
     </thead>
@@ -50,17 +50,17 @@
           <td>
             <%= orderData[i].status %>
           </td>
-          <td>
+          <!-- <td>
             <%= orderData[i].shipDate %>
-          </td>
+          </td> -->
           <td>
           <form action="/orders/<%= orderData[i].orderId%>/">
             <button>View</button>
           </form>
-          <form action="/cancel-order" method="post">
+          <!-- <form action="/cancel-order" method="post">
             <input type="hidden" name="orderId" value="<%= orderData[i].orderId%>">
             <button>Cancel</button>
-          </form>
+          </form> -->
             
             
           </td>

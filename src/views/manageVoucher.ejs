@@ -1,0 +1,82 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+
+<body>
+
+  <div class="topnav">
+    <a href="/">Hello <%{%>
+        <%= username%>
+          <%}%>!</a>
+    <a href="/users">Info</a>
+    <a href="/cart">Cart</a>
+    <a href="/orders">Orders</a>
+    <a href="/sell">
+      <%{%>
+        <%= storeName%>
+          <%}%>
+    </a>
+    <a href="/logout">Logout</a>
+  </div>
+
+  <div class="topnav">
+    <a href="/sell/<%{%><%= storeId%><%}%>">Orders Management</a>
+    <a href="/current-products/<%{%><%= storeId%><%}%>">Distribution</a>
+    <a href="/new-distributions/<%{%><%= storeId%><%}%>">Import</a>
+    <a href="/manage-voucher/<%{%><%= storeId%><%}%>" class="active">Vouchers</a>
+  </div>
+
+
+  <table class="w3-table-all w3-hoverable">
+    <thead>
+      <tr class="w3-light-grey">
+        <th>Id</th>
+        <th>Code</th>
+        <th>Discount Rate</th>
+        <th>Expiry Date</th>
+        <th>Visibility</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(let i=0; i < voucherData.length; i++) { %>
+        <tr>
+          <td>
+            <%= voucherData[i].voucherId %>
+          </td>
+          <td>
+            <%= voucherData[i].code %>
+          <td>
+            <%= voucherData[i].discountRate %>%
+          </td>
+          <td>
+            <%= voucherData[i].expiryDate %>
+          </td>
+          <td>
+            <form action="/voucher-vis" method="post">
+              <%= voucherData[i].visibility %>
+              <input type="text" hidden value="<%= voucherData[i].voucherId %>" name="voucherId">
+              <input type="text" hidden value="<%= voucherData[i].storeId %>" name="storeId">
+              <input type="text" hidden value="<%= voucherData[i].visibility %>" name="vis">
+              <input type="text" hidden value="<%= voucherData[i].status %>" name="status">
+              <button type="submit" name="visibility"">Change</button>
+            </form>
+          </td>
+          <td>
+            <%= voucherData[i].status %>
+          </td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+
+</body>
+
+</html>
