@@ -14,6 +14,7 @@
   <div class="topnav">
     <a href="/">Hello <%{%><%= username%><%}%>!</a>
     <a href="/users">Info</a>
+    <a href="/vouchers">Vouchers</a>
     <a href="/cart">Cart</a>
     <a href="/orders" class="active">Orders</a>
     <a href="/sell">Sells</a>
@@ -55,6 +56,7 @@
         <th>Total Quantity</th>
         <th>Shipping Fee (10%)</th>
         <th>Total Price</th>
+        <th>Voucher</th>
         <th>Confirm</th>
       </tr>
     </thead>
@@ -70,13 +72,22 @@
           <td>
             <p id="totalPrice"></p>
             <script>
-              let num = parseInt("<%= sum[0].totalPrice %>");
+              let num = parseFloat("<%= sum[0].totalPrice %>");
 
               let text = num.toLocaleString("en-US", { style: "currency", currency: "USD" });
               if (text == '$NaN') { text = '$0.00' }
 
               document.getElementById("totalPrice").innerHTML = text;
             </script>
+          </td>
+          <td style="width: 35%;">
+            <form action="/submit-voucher" method="post">
+              <input type="hidden" name="orderId" value="<%= sum[0].orderId%>">
+              <input type="text" name="voucherId" placeholder="<%= voucherId %>" style="width: 20%;">
+              <input type="text" name="code" placeholder="<%= code %>" style="width: 45%;">
+              <button type="submit">Submit</button>
+            </form>
+
           </td>
 
           <td>

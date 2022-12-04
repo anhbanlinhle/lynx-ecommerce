@@ -14,6 +14,7 @@
   <div class="topnav">
     <a href="/">Hello <%= username %>!</a>
     <a href="/users" class="active">Info</a>
+    <a href="/vouchers">Vouchers</a>
     <a href="/cart">Cart</a>
     <a href="/orders">Orders</a>
     <a href="/sell">Sells</a>
@@ -28,43 +29,74 @@
         <tr class="w3-light-grey">
           <th>Id</th>
           <th>Username</th>
-          <th>Date Of Birth</th>
-          <th>Email</th>
-          <th>Actions</th>
+          <th>Shopping Tier</th>
         </tr>
       </thead>
       <tbody>
-        <% for(let i=0; i < dataUser.length; i++) { %>
           <tr>
             <td>
-              <%= dataUser[i].id %>
+              <%= dataUser[0].id %>
             </td>
             <td>
-              <%= dataUser[i].username %>
+              <%= dataUser[0].username %>
             </td>
             <td>
-              <%= new Date(dataUser[i].dob).toISOString().substr(0,10) %>
-            </td>
-            <td>
-              <%= dataUser[i].email %>
-            </td>
-            <td>
-              <!-- <button type="submit">
-                <a href="/users/<%= dataUser[i].username %>" style="text-decoration: none;">Detail</a>
-              </button> -->
-              <form action="/edit-user/<%= dataUser[i].username %>" method="get">
-                <button type="submit">Edit</button>
-              </form>
-              <!-- <form action="/delete-user" method="post">
-                <button type="submit">Delete</button>
-                <input type="text" hidden value="<%= dataUser[i].username %>" name="username"/>
-              </form> -->
+              <%= dataUser[0].tier %>
             </td>
           </tr>
-          <% } %>
-      </tbody>
-
+        </tbody>
     </table>
+    <table class="w3-table-all w3-hoverable">
+      <thead>
+        <tr class="w3-light-grey">
+          <th>Date Of Birth</th>
+          <th>Email</th>
+          <th>Payment Info</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <%= new Date(dataUser[0].dob).toISOString().substr(0,10) %>
+          </td>
+          <td>
+            <%= dataUser[0].email %>
+          </td>
+          <td>
+            <%= dataUser[0].paymentInfo %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="w3-table-all w3-hoverable">
+      <thead>
+        <tr class="w3-light-grey">
+          <th>City</th>
+          <th>District</th>
+          <th>Street</th>
+          <th>House No</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <%= dataUser[0].city %>
+          </td>
+          <td>
+            <%= dataUser[0].district %>
+          </td>
+          <td>
+            <%= dataUser[0].street %>
+          </td>
+          <td>
+            <%= dataUser[0].houseNo %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <form action="/edit-user/<%= dataUser[0].username %>" method="get" style="text-align:center; margin-top:10px; font-size:30px">
+      <button type="submit">Edit</button>
+    </form>
   </div>
 </body>
 

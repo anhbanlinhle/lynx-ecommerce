@@ -37,13 +37,20 @@ let getLogin = async (req, res) => {
 
 let getUserList = async (req, res) => {
   let username = req.session.username;
-  const [rows, fields] = await pool.execute('select * from users inner join accounts on users.username = accounts.username where accounts.username = ?',[username]);
+  const [rows, fields] = await pool.execute(`select *, users.id as id from users 
+natural join accounts
+natural join consumers 
+left join useraddress on users.id = useraddress.id 
+where users.username = ?`,[username]);
+
+  // console.log(rows)
 
   return res.render('userList.ejs', {dataUser: rows, username: username});
 }
 
 let createNewUser = async (req, res) => {
-  let { username, password, email, dob } = req.body;
+  let { username, password, email, dob, paymentinfo, city, district, street, houseNo  } = req.body;
+  console.log(req.body);
 
   let [check] = await pool.execute(`select * from accounts where username = ? or email = ?`, [username, email]);
   
@@ -55,7 +62,9 @@ let createNewUser = async (req, res) => {
   await pool.execute('insert into accounts(username, password, email) values(?, ?, ?)',
    [username, password, email]);
   await pool.execute(`insert into users(dob, sFlag, username) values(?, '0', ?)`, [dob, username]);
-  await pool.execute(`insert carts (userId, quantity) VALUES (?, '0')`, [userId[0].id+1])
+  await pool.execute(`insert carts (userId, quantity) VALUES(?, '0')`, [userId[0].id+1])
+  await pool.execute(`insert into consumers (id, paymentInfo, tier) VALUES(?, ?, 'Silver')`, [userId[0].id+1, paymentinfo])
+  await pool.execute(`insert into useraddress (id, city, district, street, houseNo) VALUES (?, ?, ?, ?, ?)`, [userId[0].id+1, city, district, street, houseNo])
   return res.redirect('/login');
 }
 
@@ -68,12 +77,17 @@ let deleteUser = async (req, res) => {
 
 let editUser = async (req, res) => {
   let username = req.params.username;
-  let [user] = await pool.execute(`select * from users inner join accounts on users.username = accounts.username where users.username = ?`, [username]);
+  let [user] = await pool.execute(`select *, users.id as id from users 
+natural join accounts
+natural join consumers 
+left join useraddress on users.id = useraddress.id 
+where users.username = ?`, [username]);
   return res.render('editInfo.ejs', { dataUser: user[0] })
 }
 
 let editInfo = async (req, res) => {
-  let { username, email, dob, checkpassword } = req.body;
+  let { username, dob, paymentinfo, city, district, street, houseNo, newpassword, checkpassword } = req.body;
+  // console.log(req.body)
 
   let [check] = await pool.execute(`select * from accounts where username = ?`, [username]);
   
@@ -81,11 +95,15 @@ let editInfo = async (req, res) => {
     return res.send(`Mật khẩu không đúng`);
   }
   else {
-    await pool.execute(`update accounts set email = ? where email = ?`, 
-    [email, check[0].email]);
 
+    // await pool.execute(`update accounts set email = ? where email = ?`, 
+    // [email, check[0].email]);
     await pool.execute(`update users set dob = cast (? as date) where username = ?`, 
     [dob, check[0].username]);
+    await pool.execute(`update useraddress set city = ?, district = ?, street = ?, houseNo = ? where id = (select id from users where username = ?)`,
+    [city, district, street, houseNo, username])
+    await pool.execute(`update consumers set paymentinfo = ? where id = (select id from users where username = ?)`,[paymentinfo, username])
+    await pool.execute(`update accounts set password = ? where username = ?`,[newpassword, username]);
 
     return res.redirect('/users');
   }
@@ -235,10 +253,18 @@ inner join distributions d on d.productId = o.productId and d.storeId = o.storeI
 inner join stores s on o.storeId = s.storeId
 where orderid = ?`, [orderId]);
 
-  let [sum] = await pool.execute(`select totalQuantity, shippingFee, totalPrice, orderId from orders where orderId = ?`, [orderId]);
+  let [sum] = await pool.execute(`select totalQuantity, shippingFee, totalPrice, orderId, voucherId from orders where orderId = ?`, [orderId]);
   // console.log(sum)
   // console.log(order)
-  return res.render('orderDetail.ejs', { orderDetail: order, sum: sum, username: username });
+  let [code, f] = await pool.execute(`select code, v.voucherId from vouchers v inner join orders o on v.voucherId = o.voucherId where orderId = ?`, [orderId]);
+  
+  if (code.length > 0) {
+    return res.render('orderDetail.ejs', { orderDetail: order, sum: sum, username: username, code: code[0].code, voucherId: code[0].voucherId });
+  }
+  else {
+    return res.render('orderDetail.ejs', { orderDetail: order, sum: sum, username: username, code: 'Code', voucherId: 'Id' });
+  }
+  
 }
 
 let cancelOrder = async (req, res) => {
@@ -412,8 +438,8 @@ let shipProduct = async (req, res) => {
     return res.redirect('/sell' + '/' + storeId);
 }
 
-let addProduct = async (req, res) => {
-  return res.render('addProduct.ejs', { username: req.session.username, err: '' });
+let productCreate = async (req, res) => {
+  return res.render('productCreate.ejs', { username: req.session.username, err: '' });
 }
 
 let createProduct = async (req, res) => {
@@ -423,14 +449,14 @@ let createProduct = async (req, res) => {
   let [check] = await pool.execute(`select password from accounts where username = ?`, [username]);
 
   if (check[0].password !== password) {
-    return res.render('addProduct.ejs', { username: username, err: 'Incorrect Password' });
+    return res.render('productCreate.ejs', { username: username, err: 'Incorrect Password' });
   }
   else {
     await pool.execute(`insert into products(productName, description) values(?, ?)`, [name, description]);
     // let [pr0] = await pool.execute(`select max(productId) as productId from products`);
     // await pool.execute(`insert into producttype(productId, type) values(?, ?)`, [pr0[0].productId, type]);
   }
-  return res.render('addProduct.ejs', { username: username, err: 'Create successfully' });
+  return res.render('productCreate.ejs', { username: username, err: 'Create successfully' });
 }
 
 let getCurrentProduct = async (req, res) => {
@@ -530,6 +556,78 @@ let voucherVis = async (req, res) => {
   res.redirect('/manage-voucher' + '/' + storeId);
 }
 
+let submitVoucher = async (req, res) => {
+  let { orderId, voucherId, code } = req.body;
+  let [firstOrder, f] = await pool.execute(`select d.storeId, d.price, o.quantity from orderitems o 
+  inner join distributions d 
+  on o.productId = d.productId and o.storeId = d.storeId 
+  where o.orderId = ?`, [orderId]);
+  let [oldPrice] = await pool.execute(`select totalPrice, shippingFee from orders where orderId = ?`, [orderId]);
+
+  let [check1, f1] = await pool.execute(`select voucherId from orders where orderId = ?`, [orderId]);
+  let [check2, f2] = await pool.execute(`select * from vouchers where voucherId = ? and code = ?`, [voucherId, code]);
+  // console.log(check1[0].voucherId == null)
+  // console.log(check2[0].visibility == "Public")
+  // console.log(check2[0].status == "Available")
+  // console.log(new Date(check2[0].expiryDate) > new Date());
+  
+  let totalPrice = 0
+
+  if (check1[0].voucherId == null && check2.length > 0) {
+    let storeId = check2[0].storeId;
+    let rate = check2[0].discountRate;
+    let shippingFee = oldPrice[0].shippingFee;
+    
+    if (check2[0].visibility == "Public" && check2[0].status == "Available" && new Date(check2[0].expiryDate) > new Date()) {
+      for (let i=0; i<firstOrder.length; i++) {
+        if (firstOrder[i].storeId == storeId) {
+          totalPrice += (firstOrder[i].price*(100-rate)/100)*firstOrder[i].quantity;
+        }
+        else {
+          totalPrice += firstOrder[i].price*firstOrder[i].quantity;
+        }
+      }
+      totalPrice += shippingFee
+      await pool.execute(`update orders set totalPrice = ?, voucherId = ? where orderId = ?`, [parseFloat(totalPrice), voucherId, orderId]);
+      await pool.execute(`update vouchers set status = 'Used' where voucherId = ?`, [voucherId]);
+    }
+  }
+
+  return res.redirect('/orders/' + orderId);
+}
+
+let getVouchers = async (req, res) => {
+  let [voucherData, f] = await pool.execute(`select * from vouchers where status = 'Available' and visibility = 'Public'`);
+  return res.render('voucher.ejs', { voucherData: voucherData, username: req.session.username });
+}
+
+let addVoucher = async (req, res) => {
+
+  return res.render('addVoucher.ejs', { username: req.session.username, storeId: req.params.storeId, err: '' });
+}
+
+let createVoucher = async (req, res) => {
+  let { storeId, code, discountRate, expiryDate, password } = req.body; 
+//  console.log(storeId, code, discountRate, expiryDate, password);
+
+  let [pass, f] = await pool.execute(`select password from accounts where username = ?`, [req.session.username]);
+  // console.log(pass[0].password)
+
+  if (discountRate > 100 || discountRate < 0) {
+    return res.render('addVoucher.ejs', { username: req.session.username, storeId: storeId, err: 'Discount rate must be between 0 and 100' });
+  }
+  else if (new Date(expiryDate) < new Date()) {
+    return res.render('addVoucher.ejs', { username: req.session.username, storeId: storeId, err: 'Expiry date must be in the future' });
+  }
+  else if (password !== pass[0].password) {
+    return res.render('addVoucher.ejs', { username: req.session.username, storeId: storeId, err: 'Password incorrect' });
+  }
+  else {
+    await pool.execute(`insert into vouchers (storeId, code, discountRate, expiryDate, visibility, status) values (?, ?, ?, ?, 'Private', 'Available')`, [storeId, code, discountRate, expiryDate]);
+    return res.redirect('/manage-voucher' + '/' + storeId);
+  }
+}
+
 module.exports = {
   getHomepage, getUserByName, getSignUp, createNewUser, getUserList,
   deleteUser, editUser, editInfo, getUpload, getLogin,
@@ -538,9 +636,10 @@ module.exports = {
   getOrderDetail, cancelOrder, confirmOrder, receiveOrder,
   getPendingOrders, getConfirmedOrders, getCancelledOrders,
   getSell, getShippingOrders, getReceivedOrders,
-  createStore, getStoreDetail, shipProduct, addProduct,
+  createStore, getStoreDetail, shipProduct, productCreate,
   createProduct, getCurrentProduct, increaseProduct,
   getNewDistribution, importProduct, searchProduct,
   addStore, addTag, sortProduct, getManageVoucher,
-  voucherVis
+  voucherVis, submitVoucher, getVouchers, addVoucher,
+  createVoucher
 }

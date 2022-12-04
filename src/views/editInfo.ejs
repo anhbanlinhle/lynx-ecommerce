@@ -11,6 +11,7 @@
   <div class="topnav">
     <a href="/">Hello <%= dataUser.username %>!</a>
     <a href="/users">Info</a>
+    <a href="/vouchers">Vouchers</a>
     <a href="/cart">Cart</a>
     <a href="/orders">Orders</a>
     <a href="/sell">Sells</a>
@@ -21,17 +22,41 @@
       <legend>Edit Info</legend>
     <form action="/edit-info" method="post">
       <input name="username" hidden value="<%= dataUser.username %>"/>
-      <div>
+      <!-- <div>
         <label></label>
-        <input name="email" value="<%= dataUser.email %>" placeholder="email"/>
-      </div>
+        <input name="email" value="<%= dataUser.email %>" placeholder="email" required/>
+      </div> -->
       <div>
           <label></label>
-          <input type="text" value="<%= dataUser.dob %>" onfocus="(this.type='date')" onblur="(this.type='text')" name="dob" placeholder="D.O.B." required />
+          <input type="text" value="<%= dataUser.dob %>" onfocus="(this.type='date')" onblur="(this.type='text')" name="dob" placeholder="D.O.B." required/>
       </div>
       <div>
         <label></label>
-        <input type="password" name="checkpassword" placeholder="password"/>
+        <input type="text" value="<%= dataUser.paymentInfo %>" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="paymentinfo" placeholder="payment (xxx-xxx-xxxx)" required/>
+      </div>
+      <div>
+        <label></label>
+        <input type="text" value="<%= dataUser.city %>" name="city" placeholder="city" required />
+      </div>
+      <div>
+        <label></label>
+        <input type="text" value="<%= dataUser.district %>" name="district" placeholder="district" required />
+      </div>
+      <div>
+        <label></label>
+        <input type="text" value="<%= dataUser.street %>" name="street" placeholder="street" required />
+      </div>
+      <div>
+        <label></label>
+        <input type="text" value="<%= dataUser.houseNo %>" name="houseNo" placeholder="house no" required />
+      </div>
+      <div>
+        <label></label>
+        <input type="password" name="newpassword" placeholder="new password" required/>
+      </div>
+      <div>
+        <label></label>
+        <input type="password" name="checkpassword" placeholder="old password" required/>
       </div>
       <div>
         <button class="button-save" type="submit">Save!</button>

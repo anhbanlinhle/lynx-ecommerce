@@ -49,7 +49,7 @@ const initWebRoute = (app) => {
   router.get('/sell/:storeId', homeController.getStoreDetail);
   router.post('/ship-product', homeController.shipProduct);
 
-  router.get('/add-product/', homeController.addProduct);
+  router.get('/add-product/', homeController.productCreate);
   router.post('/create-product/', homeController.createProduct);
 
   router.get('/current-products/:storeId', homeController.getCurrentProduct);
@@ -66,6 +66,13 @@ const initWebRoute = (app) => {
 
   router.get('/manage-voucher/:storeId', homeController.getManageVoucher);
   router.post('/voucher-vis', homeController.voucherVis);
+
+  router.get('/vouchers', homeController.getVouchers);
+  router.post('/submit-voucher', homeController.submitVoucher);
+  
+  router.get('/add-voucher/:storeId', homeController.addVoucher);
+  router.post('/create-voucher', homeController.createVoucher);
+
 
   return app.use('/', router);
 }

@@ -4,50 +4,49 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Product</title>
+  <title>Lynx</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
 
 <body>
+
   <div class="topnav">
     <a href="/">Hello <%{%>
         <%= username%><%}%>!</a>
-        <a href="/users">Info</a>
+    <a href="/users">Info</a>
+    <a href="/vouchers" class="active">Vouchers</a>
     <a href="/cart">Cart</a>
     <a href="/orders">Orders</a>
-    <a href="/sell" >My Stores</a>
-    <a href="/add-product" class="active">Add Product</a>
+    <a href="/sell">Sells</a>
     <a href="/logout">Logout</a>
-    
-  </div>
-  <div class="w3-container">
   </div>
 
-  <div class="create-user-container">
-    <form action="/create-product" method="post">
+  <div class="create-store-container" style="margin-left: 35%">
+    <form action="/create-voucher" method="post">
       <fieldset>
         <% if (err.length> 0) { %>
           <script> alert('<%= err%>')</script>
           <% } %>
-            <legend>Add Product</legend>
+            <legend>Create New Voucher</legend>
+            <input type="storeId" hidden value="<%= storeId %>" name="storeId">
             <div>
               <label></label>
-              <input type="text" name="name" placeholder="name" required />
+              <input type="number" name="discountRate" placeholder="Discount Rate" required />
             </div>
 
             <div>
               <label></label>
-              <input type="text" name="description" placeholder="description" required />
+              <input type="text" name="code" placeholder="Code" required />
             </div>
-            
-            <!-- <div>
-              <label></label>
-              <input type="text" name="type" placeholder="type" required />
-            </div> -->
+
             <div>
               <label></label>
-              <input type="password" name="password" placeholder="password" required />
+              <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" name="expiryDate" placeholder="Expiry Date" required />
+            </div>
+            <div>
+              <label></label>
+              <input type="password" name="password" placeholder="Confirm Password" required />
             </div>
             <div>
               <button type="submit" class="create">Create!</button>

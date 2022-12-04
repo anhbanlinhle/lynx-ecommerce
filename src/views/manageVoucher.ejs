@@ -13,9 +13,10 @@
 
   <div class="topnav">
     <a href="/">Hello <%{%>
-        <%= username%>
-          <%}%>!</a>
+        <%= username%><%}%>!</a>
     <a href="/users">Info</a>
+    <a href="/vouchers">Vouchers</a>
+    <a href="/vouchers">Vouchers</a>
     <a href="/cart">Cart</a>
     <a href="/orders">Orders</a>
     <a href="/sell">
@@ -54,7 +55,7 @@
           <td>
             <%= voucherData[i].code %>
           <td>
-            <%= voucherData[i].discountRate %>%
+            -<%= voucherData[i].discountRate %>%
           </td>
           <td>
             <%= voucherData[i].expiryDate %>
@@ -76,6 +77,11 @@
       <% } %>
     </tbody>
   </table>
+  <div>
+    <form action="/add-voucher/<%{%><%= storeId%><%}%>" method="get">
+      <button style="margin-left: 45%; margin-top: 15px; font-size: 25px;">Add Voucher</button>
+    </form>
+  </div>
 
 </body>
 
