@@ -1,17 +1,22 @@
 import { json } from 'body-parser';
 import pool from '../configs/connectDB';
 
-let getHomepage = async (req, res) => {
+let home = async (req, res) => {
   const [rows, fields] = await pool.execute(`select * from products inner join distributions on products.productid = distributions.productid
   inner join stores on distributions.storeid = stores.storeid where distributions.status = 'Approved'`);
 
-  const [allTag, f] = await pool.execute(`select distinct type from producttype`);
+  const [allTag, f] = await pool.execute(`select distinct type from producttype natural join distributions where status = 'Approved'`);
   
   if (req.session.username === undefined) {
     return res.render('guest.ejs', { dataUser: rows, allTag: allTag });
   }
   else {
-    return res.render('index.ejs', { dataUser: rows, username: req.session.username, allTag: allTag });
+    if (req.session.username === 'ADMIN') {
+      return res.render('admin.ejs', { dataUser: rows, username: req.session.username, allTag: allTag });
+    }
+    else {
+      return res.render('home.ejs', { dataUser: rows, username: req.session.username, allTag: allTag });
+    }
   }
 }
 
@@ -27,15 +32,15 @@ let getUserByName = async (req, res) => {
   return res.send(JSON.stringify(user));
 }
 
-let getSignUp = (req, res) => {
-  return res.render('signUp.ejs', { err: '' });
+let guestSignup = (req, res) => {
+  return res.render('guestSignup.ejs', { err: '' });
 }
 
-let getLogin = async (req, res) => {
-  return res.render('logIn.ejs', { loginErr: '' });
+let guestLogin = async (req, res) => {
+  return res.render('guestLogin.ejs', { loginErr: '' });
 }
 
-let getUserList = async (req, res) => {
+let userInfo = async (req, res) => {
   let username = req.session.username;
   const [rows, fields] = await pool.execute(`select *, users.id as id from users 
 natural join accounts
@@ -45,7 +50,7 @@ where users.username = ?`,[username]);
 
   // console.log(rows)
 
-  return res.render('userList.ejs', {dataUser: rows, username: username});
+  return res.render('userInfo.ejs', {dataUser: rows, username: username});
 }
 
 let createNewUser = async (req, res) => {
@@ -55,7 +60,7 @@ let createNewUser = async (req, res) => {
   let [check] = await pool.execute(`select * from accounts where username = ? or email = ?`, [username, email]);
   
   if (check.length > 0) {
-    return res.render('signUp.ejs', { err: 'Email/Username existed' });
+    return res.render('guestSignup.ejs', { err: 'Email/Username existed' });
   }
   let [userId] = await pool.execute(`select max(id) as id from users`, [username]);
 
@@ -132,7 +137,7 @@ let authenticate = async (req, res) => {
 
         res.redirect('/');
       } else {
-        res.render('logIn.ejs', { loginErr: 'Incorrect Username or Password!' });
+        res.render('guestLogin.ejs', { loginErr: 'Incorrect Username or Password!' });
       }
       res.end();
     }
@@ -310,38 +315,36 @@ let receiveOrder = async (req, res) => {
   return res.redirect('/orders');
 }
 
-let getPendingOrders = async (req, res) => {
+let ordersPending = async (req, res) => {
   let username = req.session.username;
 
   let [rows] = await pool.execute(`select * from orders where userId = (select id from users where username = ?) and status = 'Pending'`, [username]);
   // console.log(rows);
 
-  return res.render('pendingOrder.ejs', { pendingData: rows, username: username });
+  return res.render('ordersPending.ejs', { pendingData: rows, username: username });
 }
 
-let getConfirmedOrders = async (req, res) => {
+let ordersConfirmed = async (req, res) => {
   let username = req.session.username;
 
   let [rows] = await pool.execute(`select * from orders where userId = (select id from users where username = ?) and status = 'Confirmed'`, [username]);
   // console.log(rows);
 
-  return res.render('confirmedOrder.ejs', { confirmedData: rows, username: username });
+  return res.render('ordersConfirmed.ejs', { confirmedData: rows, username: username });
 }
 
-let getCancelledOrders = async (req, res) => {
+let ordersCancelled = async (req, res) => {
   let username = req.session.username;
 
   let [rows] = await pool.execute(`select * from orders where userId = (select id from users where username = ?) and status = 'Cancelled'`, [username]);
 
-  return res.render('cancelledOrder.ejs', { cancelledData: rows, username: username });
+  return res.render('ordersCancelled.ejs', { cancelledData: rows, username: username });
 }
 
 
-let getShippingOrders = async (req, res) => {
+let ordersShipping = async (req, res) => {
   let username = req.session.username;
   let [pre, f] = await pool.execute(`select * from orders where userId = (select id from users where username = ?) and status = 'Confirmed'`, [username]);
-
-  
 
   for (let i=0; i<pre.length; i++) {
     let ship = true
@@ -362,38 +365,38 @@ let getShippingOrders = async (req, res) => {
   let [rows] = await pool.execute(`select * from orders where userId = (select id from users where username = ?) and status = 'Shipping'`, [username]);
   // console.log(rows);
 
-  return res.render('shippingOrders.ejs', { shippingData: rows, username: username });
+  return res.render('ordersShipping.ejs', { shippingData: rows, username: username });
 }
 
-let getReceivedOrders = async (req, res) => {
+let ordersReceived = async (req, res) => {
   let username = req.session.username;
 
   let [rows] = await pool.execute(`select * from orders where userId = (select id from users where username = ?) and status = 'Received'`, [username]);
   // console.log(rows);
 
-  return res.render('receivedOrders.ejs', { receivedData: rows, username: username });
+  return res.render('ordersReceived.ejs', { receivedData: rows, username: username });
 }
 
-let getSell = async (req, res) => {
+let storeList = async (req, res) => {
   let username = req.session.username;
 
   let [check] = await pool.execute(`select sFlag from users where username = ?`, [username]);
 
 
   if (!check[0].sFlag) {
-    return res.render('sellRegist.ejs', { username: username, err: '' });
+    return res.render('storeRegist.ejs', { username: username, err: '' });
   }
   else {
     let [seller] = await pool.execute(`select sellerid from sellers where id = (select id from users where username = ?)`, [username]);
     let [rows] = await pool.execute(`select * from stores where sellerId = ?`, [seller[0].sellerid]);
     // console.log(rows);
-    return res.render('manageStore.ejs', { storeData: rows, username: username });
+    return res.render('storeList.ejs', { storeData: rows, username: username });
   }
 }
 
 let addStore = async (req, res) => {
   let username = req.session.username;  
-  return res.render('sellRegist.ejs', { username: username, err: '' });
+  return res.render('storeRegist.ejs', { username: username, err: '' });
 }
 
 let createStore = async (req, res) => {
@@ -403,7 +406,7 @@ let createStore = async (req, res) => {
   let [check] = await pool.execute(`select password from accounts where username = ?`, [username]);
 
   if (check[0].password !== password) {
-    return res.render('sellRegist.ejs', { username: username, err: 'Incorrect Password' });
+    return res.render('storeRegist.ejs', { username: username, err: 'Incorrect Password' });
   }
 
   await pool.execute(`update users set sFlag = 1 where username = ?`, [username]);
@@ -417,7 +420,7 @@ let createStore = async (req, res) => {
   return res.redirect('/sell');
 }
 
-let getStoreDetail = async (req, res) => {
+let storeDetail = async (req, res) => {
   let storeId = req.params.storeId;
   let username = req.session.username;
   let [storeName] = await pool.execute(`select name from stores where storeId = ?`, [storeId]);
@@ -438,8 +441,8 @@ let shipProduct = async (req, res) => {
     return res.redirect('/sell' + '/' + storeId);
 }
 
-let productCreate = async (req, res) => {
-  return res.render('productCreate.ejs', { username: req.session.username, err: '' });
+let productAdd = async (req, res) => {
+  return res.render('productAdd.ejs', { username: req.session.username, err: '' });
 }
 
 let createProduct = async (req, res) => {
@@ -449,41 +452,43 @@ let createProduct = async (req, res) => {
   let [check] = await pool.execute(`select password from accounts where username = ?`, [username]);
 
   if (check[0].password !== password) {
-    return res.render('productCreate.ejs', { username: username, err: 'Incorrect Password' });
+    return res.render('productAdd.ejs', { username: username, err: 'Incorrect Password' });
   }
   else {
     await pool.execute(`insert into products(productName, description) values(?, ?)`, [name, description]);
     // let [pr0] = await pool.execute(`select max(productId) as productId from products`);
     // await pool.execute(`insert into producttype(productId, type) values(?, ?)`, [pr0[0].productId, type]);
   }
-  return res.render('productCreate.ejs', { username: username, err: 'Create successfully' });
+  return res.render('productAdd.ejs', { username: username, err: 'Create successfully' });
 }
 
-let getCurrentProduct = async (req, res) => {
+let distributionCurrent = async (req, res) => {
   let username = req.session.username;
   let storeId = req.params.storeId;
   let [rows] = await pool.execute(`select p.*, d.price, d.quantityInStock, d.storeId, d.status from products p NATURAL join distributions d where storeId = ?;`,[storeId]);
   // console.log(rows);
   let [storeName] = await pool.execute(`select name from stores where storeId = ?`, [storeId]);
 
-  return res.render('currentProduct.ejs', { productData: rows, storeName: storeName[0].name, storeId: storeId,username: username });
+  return res.render('distributionCurrent.ejs', { productData: rows, storeName: storeName[0].name, storeId: storeId,username: username });
 }
 
 let increaseProduct = async (req, res) => {
   let { productId, storeId, quantity } = req.body;
-  console.log(req.body);
-  await pool.execute(`update distributions set quantityInStock = quantityInStock + ? where productId = ? and storeId = ?`, [quantity, productId, storeId]);
-
+  // console.log(req.body);
+  if (quantity > 0) {
+    await pool.execute(`update distributions set quantityInStock = quantityInStock + ? where productId = ? and storeId = ?`, [quantity, productId, storeId]);
+    await pool.execute(`update distributions set status = 'Requesting' where productId = ? and storeId = ?`, [productId, storeId]);
+  }
   res.redirect('/current-products' + '/' + storeId);
 
 }
 
-let getNewDistribution = async (req, res) => {
+let distributionAdd = async (req, res) => {
   let storeId = req.params.storeId;
   let [allProduct, f] = await pool.execute(`select * from products where productId not in (select productId from distributions where storeId = ?)`,[storeId])  
 
   let [storeName] = await pool.execute(`select name from stores where storeId = ?`, [storeId]);
-  res.render('newDistribution.ejs', { disData: allProduct, storeId: storeId, storeName: storeName[0].name, username: req.session.username });
+  res.render('distributionAdd.ejs', { disData: allProduct, storeId: storeId, storeName: storeName[0].name, username: req.session.username });
 }
 
 let importProduct = async (req, res) => {
@@ -504,18 +509,23 @@ let searchProduct = async (req, res) => {
     result = result.concat(rows);
   }
   let row = [...new Set(result)];
+
+  const [allTag, f] = await pool.execute(`select distinct type from producttype natural join distributions where status = 'Approved'`);
   
   if (req.session.username === undefined) {
-    return res.render('guest.ejs', { dataUser: row });
+    return res.render('guest.ejs', { dataUser: row, allTag: allTag });
   }
   else {
-    return res.render('index.ejs', { dataUser: row, username: req.session.username });
+    return res.render('home.ejs', { dataUser: row, username: req.session.username, allTag });
   }
 }
 
 let addTag = async (req, res) => {
   let { tag, productId, storeId } = req.body;
-  await pool.execute(`insert into producttype(productId, storeId, type) values(?, ?, ?)`, [productId, storeId, tag]);
+  let [check, f] = await pool.execute(`select * from producttype where type = ? and storeId = ? and productId = ?`, [tag, storeId, productId]);
+  if (check.length === 0) {
+    await pool.execute(`insert into producttype(productId, storeId, type) values(?, ?, ?)`, [productId, storeId, tag]);
+  }
   res.redirect('/current-products' + '/' + storeId);
 }
 
@@ -524,22 +534,22 @@ let sortProduct = async (req, res) => {
 
   const [rows, fields] = await pool.execute(`select * from products natural join distributions natural join stores natural join producttype where distributions.status = 'Approved' and type = ?`, [tag]);
 
-  const [allTag, f] = await pool.execute(`select distinct type from producttype`);
+  const [allTag, f] = await pool.execute(`select distinct type from producttype natural join distributions where status = 'Approved'`);
 
   if (req.session.username === undefined) {
     return res.render('guest.ejs', { dataUser: rows, allTag: allTag });
   }
   else {
-    return res.render('index.ejs', { dataUser: rows, username: req.session.username, allTag: allTag });
+    return res.render('home.ejs', { dataUser: rows, username: req.session.username, allTag: allTag });
   }
   
 }
 
-let getManageVoucher = async (req, res) => {
+let voucherManage = async (req, res) => {
   let storeId = req.params.storeId;
   let [storeName] = await pool.execute(`select name from stores where storeId = ?`, [storeId]);
   let [voucher] = await pool.execute(`select * from vouchers where storeId = ?`, [storeId]);
-  return res.render('manageVoucher.ejs', { voucherData: voucher, storeId: storeId, storeName: storeName[0].name, username: req.session.username });
+  return res.render('voucherManage.ejs', { voucherData: voucher, storeId: storeId, storeName: storeName[0].name, username: req.session.username });
 }
 
 let voucherVis = async (req, res) => {
@@ -562,7 +572,7 @@ let submitVoucher = async (req, res) => {
   inner join distributions d 
   on o.productId = d.productId and o.storeId = d.storeId 
   where o.orderId = ?`, [orderId]);
-  let [oldPrice] = await pool.execute(`select totalPrice, shippingFee from orders where orderId = ?`, [orderId]);
+  let [oldPrice] = await pool.execute(`select totalPrice, shippingFee, status from orders where orderId = ?`, [orderId]);
 
   let [check1, f1] = await pool.execute(`select voucherId from orders where orderId = ?`, [orderId]);
   let [check2, f2] = await pool.execute(`select * from vouchers where voucherId = ? and code = ?`, [voucherId, code]);
@@ -570,29 +580,30 @@ let submitVoucher = async (req, res) => {
   // console.log(check2[0].visibility == "Public")
   // console.log(check2[0].status == "Available")
   // console.log(new Date(check2[0].expiryDate) > new Date());
-  
-  let totalPrice = 0
+  // console.log(oldPrice[0].status);
+  if(oldPrice[0].status == "Pending") {
+    let totalPrice = 0
 
-  if (check1[0].voucherId == null && check2.length > 0) {
-    let storeId = check2[0].storeId;
-    let rate = check2[0].discountRate;
-    let shippingFee = oldPrice[0].shippingFee;
-    
-    if (check2[0].visibility == "Public" && check2[0].status == "Available" && new Date(check2[0].expiryDate) > new Date()) {
-      for (let i=0; i<firstOrder.length; i++) {
-        if (firstOrder[i].storeId == storeId) {
-          totalPrice += (firstOrder[i].price*(100-rate)/100)*firstOrder[i].quantity;
+    if (check1[0].voucherId == null && check2.length > 0) {
+      let storeId = check2[0].storeId;
+      let rate = check2[0].discountRate;
+      let shippingFee = oldPrice[0].shippingFee;
+      
+      if (check2[0].visibility == "Public" && check2[0].status == "Available" && new Date(check2[0].expiryDate) > new Date()) {
+        for (let i=0; i<firstOrder.length; i++) {
+          if (firstOrder[i].storeId == storeId) {
+            totalPrice += (firstOrder[i].price*(100-rate)/100)*firstOrder[i].quantity;
+          }
+          else {
+            totalPrice += firstOrder[i].price*firstOrder[i].quantity;
+          }
         }
-        else {
-          totalPrice += firstOrder[i].price*firstOrder[i].quantity;
-        }
+        totalPrice += shippingFee
+        await pool.execute(`update orders set totalPrice = ?, voucherId = ? where orderId = ?`, [parseFloat(totalPrice), voucherId, orderId]);
+        await pool.execute(`update vouchers set status = 'Used' where voucherId = ?`, [voucherId]);
       }
-      totalPrice += shippingFee
-      await pool.execute(`update orders set totalPrice = ?, voucherId = ? where orderId = ?`, [parseFloat(totalPrice), voucherId, orderId]);
-      await pool.execute(`update vouchers set status = 'Used' where voucherId = ?`, [voucherId]);
     }
   }
-
   return res.redirect('/orders/' + orderId);
 }
 
@@ -601,9 +612,9 @@ let getVouchers = async (req, res) => {
   return res.render('voucher.ejs', { voucherData: voucherData, username: req.session.username });
 }
 
-let addVoucher = async (req, res) => {
+let voucherAdd = async (req, res) => {
 
-  return res.render('addVoucher.ejs', { username: req.session.username, storeId: req.params.storeId, err: '' });
+  return res.render('voucherAdd.ejs', { username: req.session.username, storeId: req.params.storeId, err: '' });
 }
 
 let createVoucher = async (req, res) => {
@@ -614,13 +625,13 @@ let createVoucher = async (req, res) => {
   // console.log(pass[0].password)
 
   if (discountRate > 100 || discountRate < 0) {
-    return res.render('addVoucher.ejs', { username: req.session.username, storeId: storeId, err: 'Discount rate must be between 0 and 100' });
+    return res.render('voucherAdd.ejs', { username: req.session.username, storeId: storeId, err: 'Discount rate must be between 0 and 100' });
   }
   else if (new Date(expiryDate) < new Date()) {
-    return res.render('addVoucher.ejs', { username: req.session.username, storeId: storeId, err: 'Expiry date must be in the future' });
+    return res.render('voucherAdd.ejs', { username: req.session.username, storeId: storeId, err: 'Expiry date must be in the future' });
   }
   else if (password !== pass[0].password) {
-    return res.render('addVoucher.ejs', { username: req.session.username, storeId: storeId, err: 'Password incorrect' });
+    return res.render('voucherAdd.ejs', { username: req.session.username, storeId: storeId, err: 'Password incorrect' });
   }
   else {
     await pool.execute(`insert into vouchers (storeId, code, discountRate, expiryDate, visibility, status) values (?, ?, ?, ?, 'Private', 'Available')`, [storeId, code, discountRate, expiryDate]);
@@ -628,18 +639,61 @@ let createVoucher = async (req, res) => {
   }
 }
 
+let administration = async (req, res) => {
+  let [request, f] = await pool.execute(`select d.*, s.name, p.productName from distributions d natural join stores s natural join products p where status = 'Requesting'`);
+  // console.log(request);
+  return res.render('administration.ejs', { request: request, username: req.session.username });
+}
+
+let adminApprove = async (req, res) => {
+  let { storeId, productId } = req.body;
+  await pool.execute(`update distributions set status = 'Approved' where storeId = ? and productId = ?`, [storeId, productId]);
+  res.redirect('/approve-distributions');
+}
+
+let changePrice = async (req, res) => {
+  let { productId, storeId, price } = req.body;
+  // console.log(req.body);
+  if (price > 0) {
+    await pool.execute(`update distributions set price = ? where productId = ? and storeId = ?`, [price, productId, storeId]);
+    await pool.execute(`update distributions set status = 'Requesting' where productId = ? and storeId = ?`, [productId, storeId]);
+  }
+  return res.redirect('/current-products' + '/' + storeId);
+}
+
+let viewTag = async (req, res) => {
+  let {storeId, productId, productName, storeName } = req.body;
+  
+  let [tag, f] = await pool.execute(`select * from producttype natural join distributions where productId = ? and storeId = ?`, [productId, storeId]);
+
+  if (tag.length > 0) {
+    return res.render('distributionTag.ejs', { username: req.session.username, tag: tag, storeId: storeId, productId: productId, productName: productName, storeName: storeName });
+  }
+  else {
+    return res.redirect('/current-products' + '/' + storeId);
+  }
+}
+
+let removeTag = async (req, res) => {
+  let {storeId, productId, type} = req.body;
+  // console.log(req.body);
+  await pool.execute(`delete from producttype where productId = ? and storeId = ? and type = ?`, [productId, storeId, type]);
+  return res.redirect('/current-products' + '/' + storeId);
+}
+
 module.exports = {
-  getHomepage, getUserByName, getSignUp, createNewUser, getUserList,
-  deleteUser, editUser, editInfo, getUpload, getLogin,
+  home, getUserByName, guestSignup, createNewUser, userInfo,
+  deleteUser, editUser, editInfo, getUpload, guestLogin,
   uploadAvatar, authenticate, getLogout, getCart, getOrders,
   addToCart, updateQuantity, deleteCartItem, createOrder,
   getOrderDetail, cancelOrder, confirmOrder, receiveOrder,
-  getPendingOrders, getConfirmedOrders, getCancelledOrders,
-  getSell, getShippingOrders, getReceivedOrders,
-  createStore, getStoreDetail, shipProduct, productCreate,
-  createProduct, getCurrentProduct, increaseProduct,
-  getNewDistribution, importProduct, searchProduct,
-  addStore, addTag, sortProduct, getManageVoucher,
-  voucherVis, submitVoucher, getVouchers, addVoucher,
-  createVoucher
+  ordersPending, ordersConfirmed, ordersCancelled,
+  storeList, ordersShipping, ordersReceived,
+  createStore, storeDetail, shipProduct, productAdd,
+  createProduct, distributionCurrent, increaseProduct,
+  distributionAdd, importProduct, searchProduct,
+  addStore, addTag, sortProduct, voucherManage,
+  voucherVis, submitVoucher, getVouchers, voucherAdd,
+  createVoucher, administration, adminApprove,
+  changePrice, viewTag, removeTag
 }

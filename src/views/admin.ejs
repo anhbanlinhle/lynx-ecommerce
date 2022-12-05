@@ -1,0 +1,90 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+
+  <div class="topnav">
+    <a href="/" class="active">Hello <%{%>
+        <%= username%><%}%>!</a>
+    <!-- <a href="/users">Users</a> -->
+    <!-- <a href="/upload">Upload</a> -->
+    <!-- <a href="/users/<%{%><%= username%><%}%>">Profile</a> -->
+    <a href="/users">Info</a>
+    <a href="/approve-distributions">Administration</a>
+    <a href="/vouchers">Vouchers</a>
+    <a href="/cart">Cart</a>
+    <a href="/orders">Orders</a>
+    <a href="/sell">Sells</a>
+    <a href="/logout">Logout</a>
+    <div class="search-container">
+      <form action="/search/" method="post">
+        <input type="text" placeholder="Search.." name="search">
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
+  </div>
+
+  <div class="topnav">
+    <% for(let i=0; i < allTag.length; i++) { %>
+      <a href="/sort/<%= allTag[i].type%>">
+        <%= allTag[i].type%>
+      </a>
+      <% } %>
+  </div>
+
+  <div class="w3-container">
+    <h2 style="color: white;">Products</h2>
+    <div class="w3-container">
+      <table class="w3-table-all w3-hoverable">
+        <thead>
+          <tr class="w3-light-grey">
+            <th>Name</th>
+            <th>Price</th>
+            <!-- <th>Type</th> -->
+            <th>Store</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(let i=0; i < dataUser.length; i++) { %>
+            <tr>
+              <td>
+                <%= dataUser[i].productName %>
+              </td>
+              <td>
+                $<%= dataUser[i].price %>
+              </td>
+              <!-- <td>
+            <%= dataUser[i].type %>
+          </td> -->
+              <td>
+                <%= dataUser[i].name %>
+              </td>
+              <td>
+                <form action="/add-to-cart" method="post">
+                  <button type="submit">Add to Cart</button>
+                  <input type="text" hidden value="<%= dataUser[i].storeId %>" name="storeid">
+                  <input type="text" hidden value="<%= dataUser[i].productId %>" name="productid">
+                </form>
+
+                <!-- <button>View</button> -->
+              </td>
+            </tr>
+            <% } %>
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+</body>
+
+</html>

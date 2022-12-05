@@ -30,7 +30,8 @@
     <a href="/manage-voucher/<%{%><%= storeId%><%}%>">Vouchers</a>
   </div>
   
-
+  <div class="w3-container">
+    <h2 style="color: white;">Current Distributions</h2>
   <table class="w3-table-all w3-hoverable">
     <thead>
       <tr class="w3-light-grey">
@@ -39,8 +40,8 @@
         <th>Product</th>
         <th>Price</th>
         <th>Quantity</th>
-        <th>Import</th>
         <th>Add Tag</th>
+        <th>View Tag</th>
       </tr>
     </thead>
     <tbody>
@@ -56,27 +57,41 @@
             <%= productData[i].productName %>
           </td>
           <td>
-            $<%= productData[i].price %>
-          </td>
-          <td>
-            <%= productData[i].quantityInStock %>
-          </td>
-          <td>
-            <form action="/increase-product/" method="post">
+            <form action="/change-price" method="post">
+              $<%= productData[i].price %> → 
               <input type="hidden" name="productId" value="<%= productData[i].productId %>">
               <input type="hidden" name="storeId" value="<%= productData[i].storeId %>">
-              <input type="text" name="quantity" placeholder="quantity">
+              <input type="text" name="price" placeholder="price" style="width: 30%">
+              <button type="submit">Request</button>
+            </form>
+            
+          </td>
+          <td>
+            <form action="/increase-product" method="post">
+              <%= productData[i].quantityInStock %> →
+              <input type="hidden" name="productId" value="<%= productData[i].productId %>">
+              <input type="hidden" name="storeId" value="<%= productData[i].storeId %>">
+              <input type="text" name="quantity" placeholder="quantity" style="width: 30%">
+              <button type="submit">Request</button>
+            </form>
+          </td>
+          <td>
+            <form action="/add-tag" method="post">
+              <input type="hidden" name="productId" value="<%= productData[i].productId %>">
+              <input type="hidden" name="storeId" value="<%= productData[i].storeId %>">
+              <input type="text" name="tag" placeholder="tag" style="width: 35%">
               <button type="submit">Add</button>
             </form>
           </td>
           <td>
-            <form action="/add-tag/" method="post">
+            <form action="/view-tag" method="post">
               <input type="hidden" name="productId" value="<%= productData[i].productId %>">
               <input type="hidden" name="storeId" value="<%= productData[i].storeId %>">
-              <input type="text" name="tag" placeholder="tag">
-              <button type="submit">Add</button>
+              <input type="hidden" name="productName" value="<%= productData[i].productName %>">
+              <input type="hidden" name="storeName" value="<%= storeName %>">
+              <button type="submit">View</button>
             </form>
-          </td>
+
         </tr>
 
     </tbody>
@@ -84,7 +99,7 @@
     </tbody>
     <% } %>
   </table>
-
+  </div>
 </body>
 
 </html>

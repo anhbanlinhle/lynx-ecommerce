@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pending</title>
+  <title>Shipping</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
@@ -22,45 +22,47 @@
     <a href="/logout">Logout</a>
   </div>
   <div class="topnav">
-    <a href="/pending" class="active">Pending</a>
+    <a href="/pending">Pending</a>
     <a href="/confirmed">Confirmed</a>
-    <a href="/shipping">Shipping</a>
+    <a href="/shipping"  class="active">Shipping</a>
     <a href="/cancelled">Cancelled</a>
     <a href="/received">Received</a>
   </div>
 
+  <div class="w3-container">
+    <h2 style="color: white;">Shipping Orders</h2>
   <table class="w3-table-all w3-hoverable">
     <thead>
       <tr class="w3-light-grey">
         <th>Order Id</th>
         <th>Total Price</th>
         <th>Status</th>
-        <!-- <th>Ship Date</th> -->
+        <th>Ship Date</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      <% for(let i=0; i < pendingData.length; i++) { %>
+      <% for(let i=0; i < shippingData.length; i++) { %>
         <tr>
           <td>
-            #<%= pendingData[i].orderId %>
+            #<%= shippingData[i].orderId %>
           </td>
           <td>
-            $<%= pendingData[i].totalPrice %>
+            $<%= shippingData[i].totalPrice %>
           </td>
           <td>
-            <%= pendingData[i].status %>
+            <%= shippingData[i].status %>
           </td>
-          <!-- <td>
-            <%= pendingData[i].shipDate %>
-          </td> -->
           <td>
-            <form action="/orders/<%= pendingData[i].orderId%>/">
+            <%= shippingData[i].shipDate %>
+          </td>
+          <td>
+            <form action="/orders/<%= shippingData[i].orderId%>/">
               <button>View</button>
             </form>
-            <form action="/cancel-order" method="post">
-              <input type="hidden" name="orderId" value="<%= pendingData[i].orderId%>">
-              <button>Cancel</button>
+            <form action="/receive-order" method="post">
+              <input type="hidden" name="orderId" value="<%= shippingData[i].orderId%>">
+              <button>Received</button>
             </form>
           </td>
         </tr>
@@ -70,6 +72,7 @@
     </tbody>
     <% } %>
   </table>
+  </div>
 </body>
 
 </html>

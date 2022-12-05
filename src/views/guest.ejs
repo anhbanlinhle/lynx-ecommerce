@@ -26,7 +26,16 @@
     </div>
 
   </div>
+  <div class="topnav">
+    <% for(let i=0; i < allTag.length; i++) { %>
+      <a href="/sort/<%= allTag[i].type%>">
+        <%= allTag[i].type%>
+      </a>
+      <% } %>
+  </div>
 
+  <div class="w3-container">
+    <h2 style="color: white;">Products</h2>
   <table class="w3-table-all w3-hoverable">
     <thead>
       <tr class="w3-light-grey">
@@ -57,6 +66,7 @@
     </tbody>
 
   </table>
+  </div>
 </body>
 
 </html>
