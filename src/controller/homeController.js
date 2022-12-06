@@ -48,6 +48,19 @@ natural join consumers
 left join useraddress on users.id = useraddress.id 
 where users.username = ?`,[username]);
 
+  let [allCost, f] = await pool.execute(`select sum(totalPrice) as allCost from orders where userId = ? and status = 'Received'`, [rows[0].id]); 
+  // console.log(allCost[0].allCost)
+
+  if (allCost[0].allCost > 10000) {
+    await pool.execute(`update consumers set tier = 'Gold' where id = ?`, [rows[0].id]);
+  }
+  if (allCost[0].allCost > 50000) {
+    await pool.execute(`update consumers set tier = 'Platinum' where id = ?`, [rows[0].id]);
+  }
+  if (allCost[0].allCost > 100000) {
+    await pool.execute(`update consumers set tier = 'Diamond' where id = ?`, [rows[0].id]);
+  }
+
   // console.log(rows)
 
   return res.render('userInfo.ejs', {dataUser: rows, username: username});
@@ -153,9 +166,9 @@ let getCart = async (req, res) => {
   }
 
   let check = await pool.execute(`SELECT c.*, p.*, d.*, s.name FROM cartitems c 
-inner join distributions d on c.productId = d.productId and c.storeId = d.storeId 
-inner join products p on p.productId = c.productId 
-inner join stores s on s.storeId = c.storeId where cartId = ?`, [rows[0].cartId]);
+natural join distributions d 
+natural join products p 
+natural join stores s where cartId = ?`, [rows[0].cartId]);
 
   // console.log(check[0]);
 
@@ -504,8 +517,11 @@ let searchProduct = async (req, res) => {
   let result = []
 
   for (let i=0; i<allKey.length; i++) {
-    const [rows, fields] = await pool.execute(`select * from products inner join distributions on products.productid = distributions.productid
-  inner join stores on distributions.storeid = stores.storeid where products.productname like ? or stores.name like ?`, ['%' + allKey[i] + '%', '%' + allKey[i] + '%']);
+    const [rows, fields] = await pool.execute(`select * from products 
+natural join distributions
+natural join stores
+where products.productname like ? or stores.name like ?`, 
+['%' + allKey[i] + '%', '%' + allKey[i] + '%']);
     result = result.concat(rows);
   }
   let row = [...new Set(result)];
@@ -608,7 +624,7 @@ let submitVoucher = async (req, res) => {
 }
 
 let getVouchers = async (req, res) => {
-  let [voucherData, f] = await pool.execute(`select * from vouchers where status = 'Available' and visibility = 'Public'`);
+  let [voucherData, f] = await pool.execute(`select v.*, s.name from vouchers v natural join stores s where status = 'Available' and visibility = 'Public'`);
   return res.render('voucher.ejs', { voucherData: voucherData, username: req.session.username });
 }
 
