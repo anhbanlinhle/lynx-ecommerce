@@ -60,9 +60,7 @@ where users.username = ?`,[username]);
   if (allCost[0].allCost > 100000) {
     await pool.execute(`update consumers set tier = 'Diamond' where id = ?`, [rows[0].id]);
   }
-
-  // console.log(rows)
-
+  
   return res.render('userInfo.ejs', {dataUser: rows, username: username});
 }
 
